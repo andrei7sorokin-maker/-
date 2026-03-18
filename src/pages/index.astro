@@ -1,0 +1,16 @@
+---
+import { getEntry } from "astro:content";
+import SitePage from "../components/SitePage.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const homeEntry = await getEntry("home", "ru");
+const serviceEntry = await getEntry("services", "ru");
+
+if (!homeEntry || !serviceEntry) {
+  throw new Error("Missing Russian content entry.");
+}
+---
+
+<BaseLayout lang="ru" title="Лесные домики Эстонии у водоемов" description={homeEntry.data.heroLead}>
+  <SitePage lang="ru" homeEntry={homeEntry} serviceEntry={serviceEntry} />
+</BaseLayout>

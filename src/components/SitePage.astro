@@ -1,0 +1,219 @@
+---
+import { render } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+import { cabins, languages, type Lang, ui } from "../data/site";
+import BookingForm from "./BookingForm.astro";
+
+interface Props {
+  lang: Lang;
+  homeEntry: CollectionEntry<"home">;
+  serviceEntry: CollectionEntry<"services">;
+}
+
+const { lang, homeEntry, serviceEntry } = Astro.props;
+const { Content: HomeContent } = await render(homeEntry);
+const { Content: ServicesContent } = await render(serviceEntry);
+const copy = ui[lang];
+const featuredPhotos = [
+  {
+    src: "https://images.pexels.com/photos/24973254/pexels-photo-24973254.jpeg?auto=compress&cs=tinysrgb&w=1200",
+    alt: "Cabin by a calm green lake"
+  },
+  {
+    src: "https://images.pexels.com/photos/10530007/pexels-photo-10530007.jpeg?auto=compress&cs=tinysrgb&w=1200",
+    alt: "Cabin reflected in a dark forest lake"
+  },
+  {
+    src: "https://images.pexels.com/photos/8389011/pexels-photo-8389011.jpeg?auto=compress&cs=tinysrgb&w=1200",
+    alt: "Cabin over green water in the forest"
+  }
+];
+---
+
+<div class="site-header">
+  <div class="page-shell header-inner">
+    <a class="brand" href={languages[lang].path}>
+      <strong>{copy.brand}</strong>
+      <span>Cabins by lakes, rivers, and pine forests</span>
+    </a>
+    <nav class="main-nav">
+      <a href="#cabins">{copy.navCabins}</a>
+      <a href="#about">{copy.navAbout}</a>
+      <a href="#services">{copy.navServices}</a>
+      <a href="#booking">{copy.navBooking}</a>
+    </nav>
+    <nav class="lang-nav">
+      {Object.entries(languages).map(([id, item]) => (
+        <a href={item.path} class={id === lang ? "active" : ""}>{item.label}</a>
+      ))}
+    </nav>
+  </div>
+</div>
+
+<main class="page-shell">
+  <section class="hero">
+    <div class="hero-copy">
+      <span class="eyebrow">{homeEntry.data.heroEyebrow}</span>
+      <h1 class="hero-title">{homeEntry.data.heroTitle}</h1>
+      <p class="hero-lead">{homeEntry.data.heroLead}</p>
+      <div class="hero-actions">
+        <a class="button primary" href="#cabins">{homeEntry.data.heroPrimary}</a>
+        <a class="button secondary" href="#booking">{homeEntry.data.heroSecondary}</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <strong>10</strong>
+          <span>{copy.regionLabel}</span>
+        </div>
+        <div class="stat">
+          <strong>2-8</strong>
+          <span>{copy.guests}</span>
+        </div>
+        <div class="stat">
+          <strong>80-160 EUR</strong>
+          <span>{copy.perNight}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <img
+        src="https://images.pexels.com/photos/24973254/pexels-photo-24973254.jpeg?auto=compress&cs=tinysrgb&w=1600"
+        alt="Forest cabin by the water in Estonia"
+      />
+      <div class="visual-caption">
+        <strong>Forest Echo Estonia</strong>
+        <span>Real cabins, pine forest, shoreline air, and calm days by the water.</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="photo-band" aria-label="Forest cabin photos">
+    <div class="photo-band-head">
+      <span class="section-kicker">Nature gallery</span>
+      <h2 class="section-title">Три живых кадра с домиками у воды</h2>
+    </div>
+    <div class="photo-grid">
+      {featuredPhotos.map((photo) => (
+        <figure class="photo-card">
+          <img src={photo.src} alt={photo.alt} />
+        </figure>
+      ))}
+    </div>
+  </section>
+
+  <section class="story-grid" id="about">
+    <div class="story-card">
+      <span class="section-kicker">{copy.navAbout}</span>
+      <h2 class="section-title">{homeEntry.data.storyTitle}</h2>
+      <p class="section-lead">{homeEntry.data.storyIntro}</p>
+      <ul class="story-points">
+        {homeEntry.data.storyPoints.map((point) => (
+          <li>{point}</li>
+        ))}
+      </ul>
+    </div>
+    <article class="markdown-card">
+      <HomeContent />
+    </article>
+  </section>
+
+  <section id="services">
+    <div class="section-head">
+      <div>
+        <span class="section-kicker">{copy.navServices}</span>
+        <h2 class="section-title">{serviceEntry.data.title}</h2>
+      </div>
+      <p class="section-lead">{serviceEntry.data.intro}</p>
+    </div>
+    <div class="services-grid">
+      {serviceEntry.data.cards.map((card) => (
+        <article class="service-card">
+          <h3>{card.title}</h3>
+          <p>{card.text}</p>
+        </article>
+      ))}
+    </div>
+    <article class="markdown-card services-body">
+      <ServicesContent />
+    </article>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div>
+        <span class="section-kicker">{copy.regionLabel}</span>
+        <h2 class="section-title">{copy.cabinsTitle}</h2>
+      </div>
+      <p class="section-lead">{copy.cabinsLead}</p>
+    </div>
+    <div class="regions-grid">
+      {Array.from(new Set(cabins.map((cabin) => cabin.region))).map((region) => (
+        <article class="region-card">
+          <strong>{region}</strong>
+          <p>Forest location near water</p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section id="cabins">
+    <div class="section-head">
+      <div>
+        <span class="section-kicker">{copy.navCabins}</span>
+        <h2 class="section-title">10 cabins across Estonia</h2>
+      </div>
+      <p class="section-lead">
+        {copy.from} 80 EUR {copy.perNight}. 2-person, 4-person, 6-person, and 8-person
+        forest houses set near lakes, rivers, and quiet natural shorelines.
+      </p>
+    </div>
+    <div class="cabins-grid">
+      {cabins.map((cabin) => (
+        <article class="cabin-card">
+          <img src={cabin.image} alt={cabin.title[lang]} />
+          <div class="cabin-content">
+            <div class="cabin-top">
+              <div>
+                <p class="cabin-meta">{cabin.region}</p>
+                <h3 class="cabin-name">{cabin.title[lang]}</h3>
+              </div>
+              <div class="price-pill">
+                <strong>{cabin.price} EUR</strong>
+                <span>{copy.perNight}</span>
+              </div>
+            </div>
+            <p>{cabin.text[lang]}</p>
+            <ul class="feature-list">
+              <li>{cabin.sleeps} {copy.guests}</li>
+              {cabin.features.map((feature) => (
+                <li>{feature}</li>
+              ))}
+            </ul>
+            <a class="button secondary" href="#booking">{copy.bookNow}</a>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="booking-grid">
+    <div class="story-card">
+      <span class="section-kicker">{copy.navBooking}</span>
+      <h2 class="section-title">{homeEntry.data.contactTitle}</h2>
+      <p class="section-lead">{homeEntry.data.contactLead}</p>
+      <ul class="story-points">
+        <li>stay@forestecho.ee</li>
+        <li>+372 5555 2408</li>
+        <li>Русский, Eesti, English</li>
+      </ul>
+    </div>
+    <BookingForm lang={lang} />
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="page-shell">
+    <p>{copy.footer}</p>
+  </div>
+</footer>

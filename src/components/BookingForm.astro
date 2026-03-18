@@ -1,0 +1,93 @@
+---
+import type { Lang } from "../data/site";
+import { cabinTypes, ui } from "../data/site";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const copy = ui[lang];
+---
+
+<div class="booking-card" id="booking">
+  <h2>{copy.bookingTitle}</h2>
+  <p class="section-lead">{copy.bookingIntro}</p>
+  <form id={`booking-form-${lang}`}>
+    <div class="field">
+      <label for={`name-${lang}`}>{copy.name}</label>
+      <input id={`name-${lang}`} name="name" required />
+    </div>
+    <div class="field">
+      <label for={`email-${lang}`}>{copy.email}</label>
+      <input id={`email-${lang}`} type="email" name="email" required />
+    </div>
+    <div class="field">
+      <label for={`phone-${lang}`}>{copy.phone}</label>
+      <input id={`phone-${lang}`} name="phone" required />
+    </div>
+    <div class="field">
+      <label for={`guests-${lang}`}>{copy.guestsCount}</label>
+      <input id={`guests-${lang}`} name="guests" type="number" min="1" max="8" required />
+    </div>
+    <div class="field">
+      <label for={`arrival-${lang}`}>{copy.arrival}</label>
+      <input id={`arrival-${lang}`} name="arrival" type="date" required />
+    </div>
+    <div class="field">
+      <label for={`departure-${lang}`}>{copy.departure}</label>
+      <input id={`departure-${lang}`} name="departure" type="date" required />
+    </div>
+    <div class="field-full">
+      <label for={`cabin-${lang}`}>{copy.cabinType}</label>
+      <select id={`cabin-${lang}`} name="cabin" required>
+        {cabinTypes.map((type) => (
+          <option value={`${type.id} guests / ${type.price} EUR`}>
+            {type.id} {copy.guests} / {type.price} EUR
+          </option>
+        ))}
+      </select>
+    </div>
+    <div class="field-full">
+      <label for={`message-${lang}`}>{copy.message}</label>
+      <textarea id={`message-${lang}`} name="message"></textarea>
+    </div>
+    <div class="field-full">
+      <button class="button primary" type="submit">{copy.send}</button>
+    </div>
+    <div class="field-full">
+      <p class="form-hint">{copy.formHint}</p>
+      <p class="form-status" id={`form-status-${lang}`} aria-live="polite"></p>
+    </div>
+  </form>
+</div>
+
+<script is:inline define:vars={{ lang, successMessage: copy.success }}>
+  const form = document.getElementById(`booking-form-${lang}`);
+  const status = document.getElementById(`form-status-${lang}`);
+
+  if (form && status) {
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const data = new FormData(form);
+      const fields = [
+        ["Name", data.get("name")],
+        ["Email", data.get("email")],
+        ["Phone", data.get("phone")],
+        ["Guests", data.get("guests")],
+        ["Cabin", data.get("cabin")],
+        ["Arrival", data.get("arrival")],
+        ["Departure", data.get("departure")],
+        ["Comment", data.get("message")]
+      ];
+      const body = fields
+        .filter(([, value]) => value)
+        .map(([label, value]) => `${label}: ${value}`)
+        .join("\n");
+      const url = `mailto:stay@forestecho.ee?subject=${encodeURIComponent("Booking request")}&body=${encodeURIComponent(body)}`;
+      window.location.href = url;
+      status.textContent = successMessage;
+      form.reset();
+    });
+  }
+</script>

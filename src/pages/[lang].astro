@@ -1,0 +1,30 @@
+---
+import { getEntry } from "astro:content";
+import type { GetStaticPaths } from "astro";
+import SitePage from "../components/SitePage.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { languages, type Lang } from "../data/site";
+
+export const getStaticPaths = (() => {
+  return Object.keys(languages)
+    .filter((lang) => lang !== "ru")
+    .map((lang) => ({ params: { lang } }));
+}) satisfies GetStaticPaths;
+
+const lang = Astro.params.lang as Lang;
+
+if (!lang || !languages[lang] || lang === "ru") {
+  return Astro.redirect("/");
+}
+
+const homeEntry = await getEntry("home", lang);
+const serviceEntry = await getEntry("services", lang);
+
+if (!homeEntry || !serviceEntry) {
+  throw new Error(`Missing content for ${lang}.`);
+}
+---
+
+<BaseLayout lang={lang} title="Forest Echo Estonia" description={homeEntry.data.heroLead}>
+  <SitePage lang={lang} homeEntry={homeEntry} serviceEntry={serviceEntry} />
+</BaseLayout>
